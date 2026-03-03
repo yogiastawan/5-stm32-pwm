@@ -39,7 +39,7 @@ fn main() -> ! {
 
     let pins = (
         gpioa.pa0.into_alternate_push_pull(&mut gpioa.crl),
-        gpioa.pa3.into_alternate_push_pull(&mut gpioa.crl),
+        gpioa.pa2.into_alternate_push_pull(&mut gpioa.crl),
     );
 
     let mut afio = dp.AFIO.constrain(&mut clocks);
@@ -59,33 +59,34 @@ fn main() -> ! {
     let pwm_channels = pwm.split();
 
     let mut pwm_pa0 = pwm_channels.0;
-    let mut pwm_pa3 = pwm_channels.1;
+    let mut pwm_pa2 = pwm_channels.1;
 
     let mut delay = Timer::syst_external(cp.SYST, &clocks.clocks).delay();
 
     pwm_pa0.set_duty(max_duty);
-    pwm_pa3.set_duty(0);
-    delay.delay(1000.millis());
+    pwm_pa2.set_duty(0);
+    delay.delay_ms(1000u16);
 
     // duty cycle 50%
+    defmt::println!("duty cycle 50%");
     pwm_pa0.set_duty(max_duty / 2);
-    pwm_pa3.set_duty(max_duty / 2);
-    delay.delay(1000.millis());
+    pwm_pa2.set_duty(max_duty / 2);
+    delay.delay_ms(1000u16);
 
     pwm_pa0.set_duty(0);
-    pwm_pa3.set_duty(max_duty);
-    delay.delay(1000.millis());
+    pwm_pa2.set_duty(max_duty);
+    delay.delay_ms(1000u16);
 
     loop {
         for duty in 0..=max_duty {
             pwm_pa0.set_duty(duty);
-            pwm_pa3.set_duty(max_duty - duty);
+            pwm_pa2.set_duty(max_duty - duty);
             delay.delay_us(100u8);
         }
 
         for duty in 0..=max_duty {
             pwm_pa0.set_duty(max_duty - duty);
-            pwm_pa3.set_duty(duty);
+            pwm_pa2.set_duty(duty);
             delay.delay_us(100u8);
         }
     }
